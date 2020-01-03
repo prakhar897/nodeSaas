@@ -92,6 +92,11 @@ app.get('/login',function(req,res,next){
 	res.render('login');
 });
 
+app.get('/logout',function(req,res,next){
+    req.logout();
+    res.redirect('/');
+});
+
 app.post('/login',
     passport.authenticate('local', { failureRedirect: '/login' }),
     function(req, res) {
