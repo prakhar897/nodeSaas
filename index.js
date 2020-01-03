@@ -14,7 +14,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine","ejs");
 app.use(express.static(__dirname+ "/public"));
 app.use(expressSession({
-	secret:"dadahdakhdadadada"
+	secret: "Big secret",
+	resave: false,
+	saveUninitialized:false 
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -22,7 +24,13 @@ app.use(passport.session());
 var url = process.env.DATABASEURL;
 mongoose.connect(url,{ useNewUrlParser: true, useUnifiedTopology: true });
 
-passport.use(new LocalStrategy({
+
+
+
+
+
+
+passport.use('local',new LocalStrategy({
     usernameField: "email",
     passwordField: "password"
 }, function(email, password, next) {
@@ -37,6 +45,25 @@ passport.use(new LocalStrategy({
     })
 }));
 
+passport.use('signup-local',new LocalStrategy({
+    usernameField: "email",
+    passwordField: "password"
+}, function(email, password, next) {
+    User.findOne({
+		email:email
+	},function(err,user){
+		if(err) return next(err);
+		if(user) return next("User already exists");
+		let newUser = new User({
+			email: email,
+			passwordHash: bcrypt.hashSync(password,10)
+		});
+		newUser.save(function(err){
+			next(err,newUser);
+		});
+	});
+}));
+
 passport.serializeUser(function(user,next){
 	next(null,user._id); 
 });
@@ -46,6 +73,12 @@ passport.deserializeUser(function(id,next){
 		next(err,user);
 	});
 });
+
+
+
+
+
+
 
 app.get('/', function (req, res) {
   res.render('index' , {title: "Saas App"});
@@ -66,22 +99,18 @@ app.post('/login',
     }
 );
 
-app.post('/signup',function (req,res,next){
-	User.findOne({
-		email:req.body.email
-	},function(err,user){
-		if(err) return next(err);
-		if(user) return next("User already exists");
-		let newUser = new User({
-			email: req.body.email,
-			passwordHash: bcrypt.hashSync(req.body.password,10)
-		});
-		newUser.save(function(err){
-			if(err) return next(err);
-			res.redirect('/main');
-		});
-	});	
-});
+app.post('/signup',
+    passport.authenticate('signup-local', { failureRedirect: '/' }),
+    function(req, res) {
+        res.redirect('/main');
+    }
+);
+
+
+
+
+
+
 
 app.listen(process.env.PORT,function(req,res){
 	console.log(`Listening on port ${process.env.PORT}`);
