@@ -6,8 +6,8 @@ var dotenv = require('dotenv');
 var User = require('./models/user');
 var bcrypt = require('bcrypt');
 var expressSession = require('express-session');
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+
+
 
 dotenv.config();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,8 +18,7 @@ app.use(expressSession({
 	resave: false,
 	saveUninitialized:false 
 }));
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 var url = process.env.DATABASEURL;
 mongoose.connect(url,{ useNewUrlParser: true, useUnifiedTopology: true });
@@ -29,6 +28,16 @@ mongoose.connect(url,{ useNewUrlParser: true, useUnifiedTopology: true });
 
 
 
+
+
+
+
+
+
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+app.use(passport.initialize());
+app.use(passport.session());
 
 passport.use('local',new LocalStrategy({
     usernameField: "email",
@@ -80,6 +89,22 @@ passport.deserializeUser(function(id,next){
 
 
 
+
+
+
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+
+
+
+
+
+
+
+
+
+
 app.get('/', function (req, res) {
   res.render('index' , {title: "Saas App"});
 });
@@ -90,6 +115,26 @@ app.get('/main',function(req,res){
 
 app.get('/login',function(req,res,next){
 	res.render('login');
+});
+
+app.get('/billing',function(req,res,next){
+    /*stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        subscription_data: {
+          items: [{
+            plan: 'prod_GUVGzI4HskJGNu',
+          }],
+        },
+        success_url: 'http://localhost:3000/billing?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: 'http://localhost:3000/billing',
+        },function(err,session){
+            if(err) next(err);
+           // console.log(session);
+            res.render('billing',{sessionId:session.id});
+        }
+    );*/
+
+    res.render('billing',{sessionId:0});
 });
 
 app.get('/logout',function(req,res,next){
@@ -110,11 +155,6 @@ app.post('/signup',
         res.redirect('/main');
     }
 );
-
-
-
-
-
 
 
 app.listen(process.env.PORT,function(req,res){

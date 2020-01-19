@@ -71,7 +71,21 @@
         <div class="container-fluid">
 
           <!-- Page Heading -->
-          <h1 class="h3 mt-4 mb-4 text-gray-800">Blank Page</h1>
+          <h1 class="h3 mt-4 mb-4 text-gray-800">Billing Page</h1>
+            <button onclick="goToCheckout()" class= "btn btn-primary">Subscribe for 10$/Month </button>
+
+            <script src="https://js.stripe.com/v3/"></script>
+            <script>
+              var stripe = Stripe('pk_test_XDsq0bFWe4bmgGG6X8IKxwj000iHF1NLOx');
+
+              function goToCheckout(){
+                stripe.redirectToCheckout({
+                  sessionId: `<%= sessionId %>`
+                }).then(function (result) {
+
+                });
+              }
+            </script>
 
         </div>
         <!-- /.container-fluid -->
