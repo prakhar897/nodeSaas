@@ -1,12 +1,8 @@
 # Saas-starter
-Saas Starter code using Node and Express
+This is a starting repository to create a simple Saas App. It contains a built in authentication feature and billing using stripe feature.
 
-#How to run
-1. clone the repository
-2. open cmd and type npm i
-3. you need to create a .env file which will define env variables. The env includes the following information
-
-PORT=
-DATABASEURL = 
-
-4. You can define port randomly. Database is mongodb and you need to define its driver url (I personally use mLab)
+**How to run**
+- clone the repository
+- open cmd and type npm i
+- change .env.example to .env. You also need to fill all the variables.
+- you need to define database driver url (I personally use mLab)
