@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine","ejs");
 app.use(express.static(__dirname+ "/public"));
 app.use(expressSession({
-	secret: "Big secret",
+	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized:false 
 }));
@@ -23,11 +23,41 @@ app.use(expressSession({
 var url = process.env.DATABASEURL;
 mongoose.connect(url,{ useNewUrlParser: true, useUnifiedTopology: true });
 
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// Match the raw body to content type application/json
+app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (request, response) => {
+    const sig = request.headers['stripe-signature'];
 
+    let event;
 
+    try {
+        event = stripe.webhooks.constructEvent(request.body, sig, process.env.ENDPOINT_SECRET);
+    } catch (err) {
+        return response.status(400).send(`Webhook Error: ${err.message}`);
+    }
 
+    // Handle the checkout.session.completed event
+    if (event.type === 'checkout.session.completed') {
+        const session = event.data.object;
 
+        // Fulfill the purchase...
+        console.log(session);
+        User.findOne({
+            email: session.customer_email
+        }, function(err, user) {
+            if (user) {
+                user.subscriptionActive = true;
+                user.subscriptionId = session.subscription;
+                user.customerId = session.customer;
+                user.save();
+            }
+        });
+    }
+
+    // Return a response to acknowledge receipt of the event
+    response.json({received: true});
+});
 
 
 
@@ -86,25 +116,6 @@ passport.deserializeUser(function(id,next){
 
 
 
-
-
-
-
-
-
-
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
-
-
-
-
-
-
-
-
-
-
 app.get('/', function (req, res) {
   res.render('index' , {title: "Saas App"});
 });
@@ -117,25 +128,22 @@ app.get('/login',function(req,res,next){
 	res.render('login');
 });
 
-app.get('/billing',function(req,res,next){
-    /*stripe.checkout.sessions.create({
+app.get('/billing', function (req, res, next) {
+
+    stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         subscription_data: {
-          items: [{
-            plan: 'prod_GUVGzI4HskJGNu',
-          }],
+            items: [{
+                plan: process.env.STRIPE_PLAN,
+            }],
         },
-        success_url: 'http://localhost:3000/billing?session_id={CHECKOUT_SESSION_ID}',
+        success_url:'http://localhost:3000/billing?session_id={CHECKOUT_SESSION_ID}',
         cancel_url: 'http://localhost:3000/billing',
-        },function(err,session){
-            if(err) next(err);
-           // console.log(session);
-            res.render('billing',{sessionId:session.id});
-        }
-    );*/
-
-    res.render('billing',{sessionId:0});
-});
+    }, function(err, session) {
+        if (err) return next(err);
+        res.render('billing', {STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY, sessionId: session.id, subscriptionActive: req.user.subscriptionActive})
+    });
+})
 
 app.get('/logout',function(req,res,next){
     req.logout();
