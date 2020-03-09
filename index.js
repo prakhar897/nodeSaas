@@ -59,7 +59,24 @@ app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (request, r
 });
 
 
-
+app.post('/cancel-sub' , (req,res)=>{
+    User.findOne({
+        _id:req.session.passport.user
+    })
+    .then((user) => {
+        stripe.subscriptions.del(user.subscriptionId, (err,confirmation) => {
+            if(err)
+                console.log(err);
+            else
+                user.subscriptionActive = false;
+                user.subscriptionId = null;
+                user.customerId = null;
+                user.save();
+                res.redirect('/billing');
+        });
+    });
+    
+});
 
 
 

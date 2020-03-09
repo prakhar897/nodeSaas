@@ -73,7 +73,9 @@
           <!-- Page Heading -->
           <h1 class="h3 mt-4 mb-4 text-gray-800">Billing Page</h1>
           <% if (subscriptionActive) { %>
-            <p>Thanks for subbing!</p>
+            <form action='/cancel-sub' method='post'>
+              <input class="btn btn-lg btn-success" type='submit' value = " Cancel Sub" />
+            </form>
           <% } else { %>
             <button onclick="gotoCheckout()" class="btn btn-lg btn-success">Subscribe for $10/Month</button>
           <% } %>
