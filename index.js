@@ -40,7 +40,6 @@ app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (request, r
     // Handle the checkout.session.completed event
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object;
-
         // Fulfill the purchase...
         console.log(session);
         User.findOne({
@@ -131,6 +130,7 @@ app.get('/login',function(req,res,next){
 app.get('/billing', function (req, res, next) {
 
     stripe.checkout.sessions.create({
+        customer_email: req.user.email,
         payment_method_types: ['card'],
         subscription_data: {
             items: [{
