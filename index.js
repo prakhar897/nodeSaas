@@ -32,7 +32,7 @@ app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (req, res) 
     let event;
 
     try {
-        event = stripe.webhooks.constructEvent(request.body, sig, process.env.ENDPOINT_SECRET);
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.ENDPOINT_SECRET);
     } catch (err) {
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
