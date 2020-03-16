@@ -27,14 +27,14 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Match the raw body to content type application/json
 app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (req, res) => {
-    const sig = request.headers['stripe-signature'];
+    const sig = req.headers['stripe-signature'];
 
     let event;
 
     try {
         event = stripe.webhooks.constructEvent(request.body, sig, process.env.ENDPOINT_SECRET);
     } catch (err) {
-        return response.status(400).send(`Webhook Error: ${err.message}`);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
     // Handle the checkout.session.completed event
