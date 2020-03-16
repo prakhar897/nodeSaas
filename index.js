@@ -50,13 +50,12 @@ app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (req, res) 
                 user.subscriptionId = session.subscription;
                 user.customerId = session.customer;
                 user.save();
-                res.redirect('/billing');
             }
         });
     }
 
     // Return a response to acknowledge receipt of the event
-    response.json({received: true});
+    res.json({received: true});
 });
 
 
