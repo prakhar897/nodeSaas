@@ -26,7 +26,7 @@ mongoose.connect(url,{ useNewUrlParser: true, useUnifiedTopology: true });
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Match the raw body to content type application/json
-app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (request, response) => {
+app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (req, res) => {
     const sig = request.headers['stripe-signature'];
 
     let event;
@@ -50,6 +50,7 @@ app.post('/pay-success', bodyParser.raw({type: 'application/json'}), (request, r
                 user.subscriptionId = session.subscription;
                 user.customerId = session.customer;
                 user.save();
+                res.redirect('/billing');
             }
         });
     }
