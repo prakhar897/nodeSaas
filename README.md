@@ -9,14 +9,14 @@ Inspired By [alecrocute's](https://github.com/alectrocute)[flaskSaas](https://gi
 
 - [x] User account sign up, sign in
 - [x] Stripe subscriptions.
-- [] HTML macros and layout file.
-- [] password reset, all through asynchronous email confirmation.
-- [] Form generation.
-- [] Error handling.
-- [] "Functional" file structure.
-- [] Administration panel.
-- [] Logging.
-- [] Simple RESTful API to communicate with your app.
+- [ ] HTML macros and layout file.
+- [ ] password reset, all through asynchronous email confirmation.
+- [ ] Form generation.
+- [ ] Error handling.
+- [ ] "Functional" file structure.
+- [ ] Administration panel.
+- [ ] Logging.
+- [ ] Simple RESTful API to communicate with your app.
 
 ## Libraries
 
